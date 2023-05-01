@@ -73,7 +73,11 @@ const PgnInput = () => {
       </div>
       <div>
         <Typography variant="h6">Board Preview</Typography>
-        <Chessboard position={game.fen()} arePiecesDraggable={false} />
+        <div style={{ cursor: 'not-allowed' }}>
+          <div style={{ pointerEvents: 'none' }}>
+            <Chessboard position={game.fen()} arePiecesDraggable={false} />
+          </div>
+        </div>
       </div>
     </div>
   );
