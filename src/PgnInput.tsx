@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 
+type Author = 'PgnImport' | 'MoveList';
+
 const PgnInput = () => {
   const useStyles = makeStyles()((theme) => ({
     moveList: {
@@ -18,9 +20,13 @@ const PgnInput = () => {
   const { classes } = useStyles();
 
   const [pgn, setPgn] = React.useState('');
+  const [author, setAuthor] = React.useState<Author>('PgnImport');
+
   const chess = useMemo(() => {
     const c = new Chess();
-    c.loadPgn(pgn);
+    try {
+      c.loadPgn(pgn);
+    } catch (e) {}
     return c;
   }, [pgn]);
 
@@ -37,15 +43,26 @@ const PgnInput = () => {
         break;
       }
     }
+
+    setAuthor('MoveList');
     setPgn(newChess.pgn());
   };
 
   return (
     <>
       <div className={classes.moveList}>
-        <MoveList chess={chess} changeMove={changeMove} />
+        <MoveList chess={chess} changeMove={changeMove} author={author} />
       </div>
-      <textarea value={pgn} readOnly rows={5} cols={50} />
+      <textarea
+        placeholder="Paste PGN here"
+        value={pgn}
+        onChange={(e) => {
+          setPgn(e.target.value);
+          setAuthor('PgnImport');
+        }}
+        rows={5}
+        cols={50}
+      />
     </>
   );
 };
@@ -53,9 +70,11 @@ const PgnInput = () => {
 const MoveList = ({
   chess,
   changeMove,
+  author,
 }: {
   chess: Chess;
   changeMove: (ply, move) => void;
+  author: Author;
 }) => {
   const useStyles = makeStyles()((theme) => ({
     movePair: {
@@ -76,13 +95,11 @@ const MoveList = ({
 
   const nextElement = useRef(null);
   useEffect(() => {
-    if (nextElement.current) {
-      console.log('focusing');
+    if (author === 'MoveList' && nextElement.current) {
       const el = getFirstInputDescendent(nextElement.current);
-      console.log(el);
       el.focus();
     }
-  }, [nextElement, chess]);
+  }, [nextElement, chess, author]);
 
   const filterOptions = createFilterOptions({ matchFrom: 'start' });
 
@@ -172,6 +189,18 @@ const getFirstInputDescendent = (element: HTMLElement) => {
   }
 
   return null;
+};
+
+const descendentIsFocused = (element: HTMLElement) => {
+  if (element === document.activeElement) {
+    return true;
+  }
+  for (const child of element.children) {
+    if (descendentIsFocused(child as HTMLElement)) {
+      return true;
+    }
+  }
+  return false;
 };
 
 export default PgnInput;
