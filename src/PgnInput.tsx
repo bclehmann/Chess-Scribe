@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { Chess } from 'chess.js';
 import {
   Autocomplete,
-  Divider,
   TextField,
   Typography,
   createFilterOptions,
