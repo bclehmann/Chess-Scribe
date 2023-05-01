@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Chess Scribe",
+  "name": "Chess Scribe | PGN Writer",
   "icons": [
     {
       "src": "favicon.ico",
