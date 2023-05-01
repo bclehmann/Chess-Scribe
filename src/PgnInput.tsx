@@ -4,14 +4,20 @@ import {
   Autocomplete,
   Divider,
   TextField,
+  Typography,
   createFilterOptions,
 } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
+import { Chessboard } from 'react-chessboard';
 
 type Author = 'PgnImport' | 'MoveList';
 
 const PgnInput = () => {
   const useStyles = makeStyles()((theme) => ({
+    wrapper: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+    },
     moveList: {
       marginBottom: theme.spacing(2),
     },
@@ -22,7 +28,7 @@ const PgnInput = () => {
   const [pgn, setPgn] = React.useState('');
   const [author, setAuthor] = React.useState<Author>('PgnImport');
 
-  const chess = useMemo(() => {
+  const game = useMemo(() => {
     const c = new Chess();
     try {
       c.loadPgn(pgn);
@@ -31,13 +37,13 @@ const PgnInput = () => {
   }, [pgn]);
 
   const changeMove = (ply: number, move: string) => {
-    const moves = chess.history();
+    const moves = game.history();
     moves[ply] = move;
 
-    const newChess = new Chess();
+    const newGame = new Chess();
     for (const move of moves) {
       try {
-        newChess.move(move);
+        newGame.move(move);
       } catch (e) {
         // Illegal move, probably because we rewrote history
         break;
@@ -45,34 +51,40 @@ const PgnInput = () => {
     }
 
     setAuthor('MoveList');
-    setPgn(newChess.pgn());
+    setPgn(newGame.pgn());
   };
 
   return (
-    <>
-      <div className={classes.moveList}>
-        <MoveList chess={chess} changeMove={changeMove} author={author} />
+    <div className={classes.wrapper}>
+      <div>
+        <div className={classes.moveList}>
+          <MoveList game={game} changeMove={changeMove} author={author} />
+        </div>
+        <textarea
+          placeholder="Paste PGN here"
+          value={pgn}
+          onChange={(e) => {
+            setPgn(e.target.value);
+            setAuthor('PgnImport');
+          }}
+          rows={5}
+          cols={50}
+        />
       </div>
-      <textarea
-        placeholder="Paste PGN here"
-        value={pgn}
-        onChange={(e) => {
-          setPgn(e.target.value);
-          setAuthor('PgnImport');
-        }}
-        rows={5}
-        cols={50}
-      />
-    </>
+      <div>
+        <Typography variant="h6">Board Preview</Typography>
+        <Chessboard position={game.fen()} arePiecesDraggable={false} />
+      </div>
+    </div>
   );
 };
 
 const MoveList = ({
-  chess,
+  game,
   changeMove,
   author,
 }: {
-  chess: Chess;
+  game: Chess;
   changeMove: (ply, move) => void;
   author: Author;
 }) => {
@@ -87,7 +99,7 @@ const MoveList = ({
 
   const { classes } = useStyles();
 
-  const plies = useMemo(() => chess.history(), [chess]);
+  const plies = useMemo(() => game.history(), [game]);
   const movePairs = useMemo(
     () => padMovePairs([...pliesToMovePairs(plies)]),
     [plies]
@@ -99,7 +111,7 @@ const MoveList = ({
       const el = getFirstInputDescendent(nextElement.current);
       el.focus();
     }
-  }, [nextElement, chess, author]);
+  }, [nextElement, game, author]);
 
   const filterOptions = createFilterOptions({ matchFrom: 'start' });
 
@@ -110,7 +122,7 @@ const MoveList = ({
           <Autocomplete
             value={whiteMove ?? ''}
             onChange={(_, v) => changeMove(i * 2, v)}
-            options={legalMovesAtPly(chess, i * 2)}
+            options={legalMovesAtPly(game, i * 2)}
             autoSelect
             autoHighlight
             filterOptions={filterOptions}
@@ -128,10 +140,10 @@ const MoveList = ({
           <Autocomplete
             value={blackMove ?? ''}
             onChange={(_, v) => changeMove(i * 2 + 1, v)}
-            options={legalMovesAtPly(chess, i * 2 + 1)}
+            options={legalMovesAtPly(game, i * 2 + 1)}
             autoSelect
             autoHighlight
-            disabled={!chess.history()[i * 2]}
+            disabled={!game.history()[i * 2]}
             filterOptions={filterOptions}
             renderInput={(params) => (
               <TextField
@@ -172,14 +184,14 @@ const padMovePairs = (movePairs: [string?, string?][]) => {
     : [...movePairs, [undefined, undefined]];
 };
 
-const legalMovesAtPly = (chess: Chess, ply: number) => {
-  const replacedMove = chess.history({ verbose: true })[ply];
+const legalMovesAtPly = (game: Chess, ply: number) => {
+  const replacedMove = game.history({ verbose: true })[ply];
   if (!replacedMove) {
-    return chess.moves();
+    return game.moves();
   }
 
-  const newChess = new Chess(chess.history({ verbose: true })[ply].before);
-  return newChess.moves();
+  const newGame = new Chess(game.history({ verbose: true })[ply].before);
+  return newGame.moves();
 };
 
 const getFirstInputDescendent = (element: HTMLElement) => {
@@ -189,18 +201,6 @@ const getFirstInputDescendent = (element: HTMLElement) => {
   }
 
   return null;
-};
-
-const descendentIsFocused = (element: HTMLElement) => {
-  if (element === document.activeElement) {
-    return true;
-  }
-  for (const child of element.children) {
-    if (descendentIsFocused(child as HTMLElement)) {
-      return true;
-    }
-  }
-  return false;
 };
 
 export default PgnInput;
