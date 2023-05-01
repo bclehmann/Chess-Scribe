@@ -31,12 +31,11 @@ const useStyles = makeStyles()((theme) => ({
   },
   iconGroup: {
     display: 'inline-flex',
-    float: 'right',
+    fontSize: 'inherit',
     gap: theme.spacing(1),
   },
   icon: {
     verticalAlign: 'middle',
-    fontSize: 'inherit',
   },
 }));
 
@@ -55,8 +54,8 @@ const App = () => {
       <Divider />
       <Container className={clsx(classes.footer, classes.padded)}>
         <Typography variant="body2">
-          Made by Benjamin Lehmann
           <span className={classes.iconGroup}>
+            Made by Benjamin Lehmann
             <Link href="https://github.com/bclehmann">
               <Icon component={GitHubIcon} className={classes.icon} />
             </Link>
@@ -64,6 +63,13 @@ const App = () => {
               <Icon component={LinkedInIcon} className={classes.icon} />
             </Link>
           </span>
+
+          <Link
+            href="https://github.com/bclehmann/Chess-Scribe"
+            style={{ float: 'right' }}
+          >
+            Source
+          </Link>
         </Typography>
       </Container>
     </Paper>
