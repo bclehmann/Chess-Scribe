@@ -1,6 +1,6 @@
 {
   "name": "pgn-writer",
-  "homepage": "https://bclehmann.github.io/chess-scribe",
+  "homepage": "https://bclehmann.github.io/Chess-Scribe",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
