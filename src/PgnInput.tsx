@@ -16,6 +16,9 @@ const PgnInput = () => {
     wrapper: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
+      [theme.breakpoints.down('sm')]: {
+        gridTemplateColumns: '1fr',
+      },
     },
     moveList: {
       marginBottom: theme.spacing(2),
@@ -67,7 +70,7 @@ const PgnInput = () => {
             setAuthor('PgnImport');
           }}
           rows={5}
-          cols={50}
+          cols={30}
         />
       </div>
       <div>
@@ -97,6 +100,9 @@ const MoveList = ({
       gridTemplateColumns: '1fr 1fr',
       gap: theme.spacing(1),
       width: '480px',
+      [theme.breakpoints.down('sm')]: {
+        width: '240px',
+      },
     },
   }));
 
