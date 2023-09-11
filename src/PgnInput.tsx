@@ -19,6 +19,7 @@ const PgnInput = () => {
     wrapper: { marginRight: theme.spacing(2) },
     moveList: {
       display: 'flex',
+      flexFlow: 'column',
       flexWrap: 'wrap',
       columnGap: theme.spacing(4),
       marginBottom: theme.spacing(2),
