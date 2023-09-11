@@ -1,11 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as _ from 'lodash';
 import { Chess } from 'chess.js';
-import {
-  Autocomplete,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Autocomplete, TextField, Typography } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { Chessboard } from 'react-chessboard';
 
@@ -13,15 +9,28 @@ type Author = 'PgnImport' | 'MoveList';
 
 const PgnInput = () => {
   const useStyles = makeStyles()((theme) => ({
-    wrapper: {
+    body: {
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
+      gridTemplateColumns: '2fr 1fr',
       [theme.breakpoints.down('sm')]: {
         gridTemplateColumns: '1fr',
       },
     },
+    wrapper: { marginRight: theme.spacing(2) },
     moveList: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      columnGap: theme.spacing(4),
       marginBottom: theme.spacing(2),
+
+      overflowY: 'auto',
+      maxHeight: '75vh',
+      [theme.breakpoints.down('sm')]: {
+        maxHeight: '50vh',
+      },
+    },
+    pgnTextArea: {
+      width: '100%',
     },
   }));
 
@@ -57,12 +66,13 @@ const PgnInput = () => {
   };
 
   return (
-    <div className={classes.wrapper}>
-      <div>
+    <div className={classes.body}>
+      <div className={classes.wrapper}>
         <div className={classes.moveList}>
           <MoveList game={game} changeMove={changeMove} author={author} />
         </div>
         <textarea
+          className={classes.pgnTextArea}
           placeholder="Paste PGN here"
           value={pgn}
           onChange={(e) => {
@@ -99,9 +109,9 @@ const MoveList = ({
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
       gap: theme.spacing(1),
-      width: '480px',
+      width: '45%',
       [theme.breakpoints.down('sm')]: {
-        width: '240px',
+        width: '95%',
       },
     },
   }));
@@ -122,11 +132,10 @@ const MoveList = ({
     }
   }, [nextElement, game, author]);
 
-  const filterOptions = (
-    options: string[],
-    params
-  ) => {
-    const results = options.filter((o) => startsWithIgnoreCase(o, params.inputValue.replaceAll('0', 'O'))); // Allows 0-0 to match O-O
+  const filterOptions = (options: string[], params) => {
+    const results = options.filter((o) =>
+      startsWithIgnoreCase(o, params.inputValue.replaceAll('0', 'O'))
+    ); // Allows 0-0 to match O-O
 
     // Allows Ne5 to match Nxe5
     const captures = options.filter((o) => o.includes('x'));
@@ -139,7 +148,7 @@ const MoveList = ({
   };
 
   return (
-    <div>
+    <>
       {movePairs.map(([whiteMove, blackMove], i) => (
         <div className={classes.movePair} key={i}>
           <Autocomplete
@@ -185,7 +194,7 @@ const MoveList = ({
           />
         </div>
       ))}
-    </div>
+    </>
   );
 };
 
@@ -226,6 +235,7 @@ const getFirstInputDescendent = (element: HTMLElement) => {
   return null;
 };
 
-const startsWithIgnoreCase = (s: string, prefix: string) => s.toUpperCase().startsWith(prefix.toUpperCase()); // I know this isn't performant or locale-correct, but it's fine for our use case
+const startsWithIgnoreCase = (s: string, prefix: string) =>
+  s.toUpperCase().startsWith(prefix.toUpperCase()); // I know this isn't performant or locale-correct, but it's fine for our use case
 
 export default PgnInput;
