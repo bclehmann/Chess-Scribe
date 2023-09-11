@@ -5,7 +5,6 @@ import {
   Autocomplete,
   TextField,
   Typography,
-  createFilterOptions,
 } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { Chessboard } from 'react-chessboard';
