@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
+import * as _ from 'lodash';
 import { Chess } from 'chess.js';
 import {
   Autocomplete,
@@ -122,7 +123,21 @@ const MoveList = ({
     }
   }, [nextElement, game, author]);
 
-  const filterOptions = createFilterOptions({ matchFrom: 'start' });
+  const filterOptions = (
+    options: string[],
+    params
+  ) => {
+    const results = options.filter((o) => startsWithIgnoreCase(o, params.inputValue.replaceAll('0', 'O'))); // Allows 0-0 to match O-O
+
+    // Allows Ne5 to match Nxe5
+    const captures = options.filter((o) => o.includes('x'));
+    const matchingCaptures = _.chain(captures)
+      .map((c) => ({ label: c, key: c.replaceAll('x', '') }))
+      .filter((c) => startsWithIgnoreCase(c.key, params.inputValue))
+      .map((c) => c.label)
+      .value();
+    return _.uniq([...results, ...matchingCaptures]);
+  };
 
   return (
     <div>
@@ -211,5 +226,7 @@ const getFirstInputDescendent = (element: HTMLElement) => {
 
   return null;
 };
+
+const startsWithIgnoreCase = (s: string, prefix: string) => s.toUpperCase().startsWith(prefix.toUpperCase()); // I know this isn't performant or locale-correct, but it's fine for our use case
 
 export default PgnInput;
