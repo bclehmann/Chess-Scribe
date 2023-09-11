@@ -9,28 +9,30 @@ type Author = 'PgnImport' | 'MoveList';
 
 const PgnInput = () => {
   const useStyles = makeStyles()((theme) => ({
-    body: {
-      display: 'grid',
-      gridTemplateColumns: '2fr 1fr',
-      [theme.breakpoints.down('sm')]: {
-        gridTemplateColumns: '1fr',
-      },
-    },
+    body: {},
     wrapper: { marginRight: theme.spacing(2) },
     moveList: {
       display: 'flex',
-      flexFlow: 'column',
+      flexDirection: 'column',
       flexWrap: 'wrap',
-      columnGap: theme.spacing(4),
+      columnGap: theme.spacing(2),
       marginBottom: theme.spacing(2),
 
       overflowY: 'auto',
       maxHeight: '75vh',
+      maxWidth: '100%',
       [theme.breakpoints.down('sm')]: {
         maxHeight: '50vh',
       },
     },
+    bottom: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 2fr',
+      columnGap: theme.spacing(2),
+      marginTop: theme.spacing(2),
+    },
     pgnTextArea: {
+      height: '100px',
       width: '100%',
     },
   }));
@@ -72,23 +74,26 @@ const PgnInput = () => {
         <div className={classes.moveList}>
           <MoveList game={game} changeMove={changeMove} author={author} />
         </div>
-        <textarea
-          className={classes.pgnTextArea}
-          placeholder="Paste PGN here"
-          value={pgn}
-          onChange={(e) => {
-            setPgn(e.target.value);
-            setAuthor('PgnImport');
-          }}
-          rows={5}
-          cols={30}
-        />
-      </div>
-      <div>
-        <Typography variant="h6">Board Preview</Typography>
-        <div style={{ cursor: 'not-allowed' }}>
-          <div style={{ pointerEvents: 'none' }}>
-            <Chessboard position={game.fen()} arePiecesDraggable={false} />
+
+        <div className={classes.bottom}>
+          <textarea
+            className={classes.pgnTextArea}
+            placeholder="Paste PGN here"
+            value={pgn}
+            onChange={(e) => {
+              setPgn(e.target.value);
+              setAuthor('PgnImport');
+            }}
+            rows={5}
+            cols={30}
+          />
+          <div>
+            <Typography variant="h6">Board Preview</Typography>
+            <div style={{ cursor: 'not-allowed' }}>
+              <div style={{ pointerEvents: 'none' }}>
+                <Chessboard position={game.fen()} arePiecesDraggable={false} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -108,12 +113,16 @@ const MoveList = ({
   const useStyles = makeStyles()((theme) => ({
     movePair: {
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
+      gridTemplateColumns: '1.5em 1fr 1fr',
       gap: theme.spacing(1),
-      width: '45%',
+      width: '300px',
       [theme.breakpoints.down('sm')]: {
         width: '95%',
       },
+    },
+    moveNumber: {
+      justifySelf: 'end',
+      fontWeight: 'bold',
     },
   }));
 
@@ -152,6 +161,7 @@ const MoveList = ({
     <>
       {movePairs.map(([whiteMove, blackMove], i) => (
         <div className={classes.movePair} key={i}>
+          <span className={classes.moveNumber}>{i + 1}.</span>
           <Autocomplete
             value={whiteMove ?? ''}
             onChange={(_, v) => changeMove(i * 2, v)}
